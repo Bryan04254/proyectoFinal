@@ -1,9 +1,9 @@
 import pygame
 import random
 import sys
-from creacionDelArbol import Pregunta, construir_arbol_balanceado, obtener_pregunta_aleatoria
+from creacionDelArbol import iniciar_partida
 
-def inicio():
+def inicio(categoria):
     # Configuración básica de Pygame
     pygame.init()
     WIDTH, HEIGHT = 600, 600
@@ -11,7 +11,7 @@ def inicio():
     pygame.display.set_caption("Crossy Road")
     clock = pygame.time.Clock()
 
-    # Configuración de los niveles (similar al código anterior)
+    # Configuración de niveles (similar al código anterior)
     niveles = [
         ["Nivel 1", 5, 5, "perro.png", "granja.png"],
         ["Nivel 2", 7, 6, "tronco.png", "bosque.png"],
@@ -20,15 +20,9 @@ def inicio():
         ["Nivel 5", 13, 9, "marciano.png", "marte.png"]
     ]
 
-    # Configurar preguntas y construir árbol balanceado
-    preguntas = [
-        Pregunta("¿Qué es Pygame?"),
-        Pregunta("¿Cuál es la capital de Francia?"),
-        Pregunta("¿Cuántos planetas hay en el sistema solar?"),
-        Pregunta("¿Qué lenguaje se usa para desarrollo web?"),
-        Pregunta("¿Cuál es la raíz cuadrada de 16?")
-    ]
-    arbol_preguntas = construir_arbol_balanceado(preguntas)
+    # Obtener preguntas balanceadas para la partida en la categoría seleccionada
+    preguntas = iniciar_partida(categoria)
+    pregunta_index = 0  # Empezar con la primera pregunta
 
     # Variables de juego
     contador = 0
@@ -38,21 +32,21 @@ def inicio():
         background_image = pygame.image.load(niveles[contador][4])
         background_image = pygame.transform.scale(background_image, (WIDTH, HEIGHT))
 
-        # Reiniciar la posición del jugador
+        # Reiniciar posición del jugador
         player_pos = [WIDTH // 2, HEIGHT - 40]
-        
-        # Obtener y mostrar una pregunta al inicio del nivel
-        pregunta_actual = obtener_pregunta_aleatoria(arbol_preguntas)
+
+        # Obtener la siguiente pregunta de trivia y mostrarla en consola
+        pregunta_actual = preguntas[pregunta_index]
         print("Pregunta:", pregunta_actual.texto)  # Se imprime la pregunta en la consola
 
-        # Esperar respuesta del jugador
+        # Procesar la respuesta del jugador
         respuesta_correcta = input("¿Es correcta la respuesta? (s/n): ").strip().lower() == 's'
         pregunta_actual.registrar_respuesta(respuesta_correcta)
 
+        # Avanzar a la siguiente pregunta si quedan más en la lista
+        pregunta_index = (pregunta_index + 1) % len(preguntas)
+        
         # Lógica para pasar de nivel
-        # Aquí pondríamos la lógica del juego, movimientos y demás, tal como en el código anterior
-
-        # Avanzar al siguiente nivel si el jugador ha llegado a la meta
         contador += 1
         if contador >= len(niveles):
             print("¡Has completado todos los niveles!")
