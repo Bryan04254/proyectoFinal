@@ -1,7 +1,7 @@
 import pygame
 import random
 import sys
-from Modulo_creacionDelArbol import iniciar_partida
+from Modulo_SeleccionPreguntas import iniciar_partida
 
 def inicio(categoria):
     # Configuración básica de Pygame
