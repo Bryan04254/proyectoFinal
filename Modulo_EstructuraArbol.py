@@ -1,5 +1,5 @@
 import random
-from creacionDelArbol import Pregunta, NodoArbol, construir_arbol_balanceado
+from Modulo_creacionDelArbol import Pregunta, NodoArbol, construir_arbol_balanceado
 
 def crear_preguntas_por_categoria(categoria):
     """Genera una lista de 32 preguntas específicas para cada categoría."""
