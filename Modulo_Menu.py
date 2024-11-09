@@ -1,5 +1,5 @@
 import tkinter as tk
-import Modulo_Juego as juego
+import Modulo_Juego as juego  # Importa el módulo del juego
 
 # Variables globales
 ventana = None
@@ -21,23 +21,23 @@ def Definir_Categoria():
     label_titulo.pack(pady=20)
 
     categorias = ["Granja", "Bosque", "Ciudad", "Espacio", "Marte"]
-    for categoria in categorias:
-        boton = tk.Button(marco_categoria, text=categoria, width=50, command=lambda cat=categoria: elegir_y_iniciar(cat))
+    for cat in categorias:
+        boton = tk.Button(marco_categoria, text=cat, width=50, command=lambda c=cat: elegir_y_iniciar(c))
         boton.pack(pady=10)
 
 def elegir_y_iniciar(valor):
     global categoria
     categoria = valor
-    Iniciar_Juego()
+    Iniciar_Juego(categoria)
 
-def Iniciar_Juego():
+def Iniciar_Juego(categoria):
     global ventana
 
     # Limpiar la ventana para iniciar el juego
     for widget in ventana.winfo_children():
         widget.destroy()
     ventana.protocol("WM_DELETE_WINDOW", ventana.quit)
-    juego.inicio()  # Inicia el juego desde el módulo de juego
+    juego.inicio(categoria)  # Llama a inicio en el módulo del juego pasando la categoría
 
 def Menu_Principal():
     global ventana
