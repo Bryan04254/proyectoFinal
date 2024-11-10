@@ -1,88 +1,97 @@
 import pygame
 import random
-import sys
-from Modulo_SeleccionPreguntas import iniciar_partida
-from Modulo_creacionDelArbol import construir_arbol_balanceado
+from Modulo_EstructuraArbol import Pregunta
+from Modulo_EstructuraArbol import generar_arbol_por_categoria
+from Modulo_EstructuraArbol import crear_preguntas_por_categoria
 
-def iniciar_juego():
-    arbol_preguntas = construir_arbol_balanceado()
-    # Aquí iría la lógica del juego que utilice `arbol_preguntas` según sea necesario
-    # ...
+class Juego:
+    def __init__(self, categoria: str):
+        pygame.init()
+        self.categoria = categoria
+        self.vidas = 3
+        self.pantalla = pygame.display.set_mode((800, 600))
+        self.reloj = pygame.time.Clock()
+        self.posicion_jugador = [400, 550]
+        self.arbol_preguntas = generar_arbol_por_categoria(categoria)
+        self.preguntas_respondidas = 0
 
+    def iniciar_juego(self):
+        """Inicia el ciclo principal del juego, alternando entre preguntas y desafíos."""
+        while self.vidas > 0:
+            pregunta = self._obtener_pregunta()
+            respuesta_correcta = self._mostrar_pregunta(pregunta)
+            self.iniciar_desafio_esquivar(respuesta_correcta)
+            if self.vidas <= 0:
+                print("Has perdido todas tus vidas. Juego terminado.")
+                break
 
-def inicio(categoria):
-    # Configuración básica de Pygame
-    pygame.init()
-    WIDTH, HEIGHT = 600, 600
-    screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption("Crossy Road")
-    clock = pygame.time.Clock()
+    def _obtener_pregunta(self) -> Pregunta:
+        """Obtiene la siguiente pregunta del árbol de preguntas."""
+        return self.arbol_preguntas.obtener_siguiente_pregunta()
 
-    # Configuración de niveles
-    niveles = [
-        ["Nivel 1", 5, 5, "perro.png", "granja.png"],
-        ["Nivel 2", 7, 6, "tronco.png", "bosque.png"],
-        ["Nivel 3", 9, 7, "carro.png", "ciudad.png"],
-        ["Nivel 4", 11, 8, "asteroide.png", "espacio.png"],
-        ["Nivel 5", 13, 9, "marciano.png", "marte.png"]
-    ]
+    def _mostrar_pregunta(self, pregunta: Pregunta) -> bool:
+        """Muestra una pregunta al jugador y evalúa la respuesta."""
+        print(pregunta.texto)
+        respuesta = input("Respuesta (verdadero/falso): ").lower()
+        correcta = respuesta == "verdadero"
+        self.preguntas_respondidas += 1
+        return correcta
 
-    # Obtener preguntas balanceadas para la partida en la categoría seleccionada
-    preguntas = iniciar_partida(categoria)
-    pregunta_index = 0  # Empezar con la primera pregunta
+    def iniciar_desafio_esquivar(self, respuesta_correcta: bool):
+        """Inicia el desafío de esquivar obstáculos según si la respuesta fue correcta o incorrecta."""
+        filas_a_esquivar = 5 if respuesta_correcta else 10
+        velocidad_obstaculos = 5 if respuesta_correcta else 8
+        self._correr_desafio(filas_a_esquivar, velocidad_obstaculos)
 
-    # Variables de juego
-    contador = 0
-    running = True
-    while running:
-        # Manejo de eventos
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
+    def _correr_desafio(self, filas: int, velocidad: int):
+        """Ejecuta el desafío donde el jugador debe esquivar filas de obstáculos."""
+        direcciones = ["izquierda", "derecha"]
+        for i in range(filas):
+            direccion = random.choice(direcciones)
+            if not self._esquivar_fila(direccion, velocidad):
+                self.vidas -= 1
+                print("Perdiste una vida.")
+                if self.vidas == 0:
+                    print("Juego terminado.")
+                    return False
+        return True
 
-        # Cargar la imagen de fondo del nivel actual
-        try:
-            background_image = pygame.image.load(niveles[contador][4])
-            background_image = pygame.transform.scale(background_image, (WIDTH, HEIGHT))
-            screen.blit(background_image, (0, 0))
-        except pygame.error:
-            print(f"Error: No se pudo cargar la imagen {niveles[contador][4]}")
-            running = False
+    def _esquivar_fila(self, direccion: str, velocidad: int) -> bool:
+        """Simula el esquivar de una fila de obstáculos."""
+        obstaculos = self._crear_fila_obstaculos(direccion)
+        esquivado = False
+        while not esquivado:
+            self.pantalla.fill((0, 0, 0))
+            self._manejar_movimiento_jugador()
+            for obstaculo in obstaculos:
+                obstaculo['rect'].move_ip(velocidad if direccion == "derecha" else -velocidad, 0)
+                pygame.draw.rect(self.pantalla, obstaculo['color'], obstaculo['rect'])
+                if obstaculo['rect'].colliderect(pygame.Rect(*self.posicion_jugador, 50, 50)):
+                    return False
+            pygame.display.flip()
+            self.reloj.tick(30)
+            esquivado = all(obstaculo['rect'].x < 0 or obstaculo['rect'].x > 800 for obstaculo in obstaculos)
+        return True
 
-        # Reiniciar posición del jugador
-        player_pos = [WIDTH // 2, HEIGHT - 40]
+    def _crear_fila_obstaculos(self, direccion: str):
+        """Crea una fila de obstáculos con una dirección específica."""
+        obstaculos = []
+        for i in range(5):
+            ancho, alto = random.randint(50, 100), 30
+            x_pos = random.randint(0, 700)
+            color = (255, 0, 0) if self.categoria == "Ciudad" else (139, 69, 19) if self.categoria == "Bosque" else (135, 206, 250)
+            obstaculos.append({'rect': pygame.Rect(x_pos, i * 100, ancho, alto), 'color': color})
+        return obstaculos
 
-        # Obtener la siguiente pregunta de trivia
-        pregunta_actual = preguntas[pregunta_index]
-        print("Pregunta:", pregunta_actual.texto)  # Se imprime la pregunta en la consola
-
-        # Dibujar la pregunta en pantalla (simple ejemplo)
-        font = pygame.font.Font(None, 36)
-        pregunta_texto = font.render(pregunta_actual.texto, True, (255, 255, 255))
-        screen.blit(pregunta_texto, (50, 50))
-
-        # Procesar la respuesta del jugador (simulación de respuesta en este caso)
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_s]:  # Suponiendo que "S" es para respuesta correcta
-            respuesta_correcta = True
-        elif keys[pygame.K_n]:  # Suponiendo que "N" es para respuesta incorrecta
-            respuesta_correcta = False
-        else:
-            respuesta_correcta = None
-
-        if respuesta_correcta is not None:
-            pregunta_actual.registrar_respuesta(respuesta_correcta)
-            pregunta_index = (pregunta_index + 1) % len(preguntas)  # Avanza a la siguiente pregunta
-
-            # Lógica para pasar de nivel
-            contador += 1
-            if contador >= len(niveles):
-                print("¡Has completado todos los niveles!")
-                running = False
-
-        # Actualizar la pantalla
-        pygame.display.flip()
-        clock.tick(30)
-
-    pygame.quit()
-    sys.exit()
+    def _manejar_movimiento_jugador(self):
+        """Maneja el movimiento del jugador."""
+        teclas = pygame.key.get_pressed()
+        if teclas[pygame.K_LEFT] and self.posicion_jugador[0] > 0:
+            self.posicion_jugador[0] -= 5
+        if teclas[pygame.K_RIGHT] and self.posicion_jugador[0] < 750:
+            self.posicion_jugador[0] += 5
+        if teclas[pygame.K_UP] and self.posicion_jugador[1] > 0:
+            self.posicion_jugador[1] -= 5
+        if teclas[pygame.K_DOWN] and self.posicion_jugador[1] < 550:
+            self.posicion_jugador[1] += 5
+        pygame.draw.rect(self.pantalla, (0, 255, 0), (*self.posicion_jugador, 50, 50))
