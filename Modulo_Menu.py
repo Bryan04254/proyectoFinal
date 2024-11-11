@@ -1,9 +1,6 @@
 import tkinter as tk
-import Modulo_Juego as juego  # Importa el módulo del juego
-
-# Variables globales
-ventana = None
-categoria = ""
+import Modulo_Juego as juego
+import Modulo_Assets as assets
 
 def Definir_Categoria():
     global ventana
@@ -32,15 +29,18 @@ def elegir_y_iniciar(valor):
 
 def Iniciar_Juego(categoria):
     global ventana
-
     # Limpiar la ventana para iniciar el juego
     for widget in ventana.winfo_children():
         widget.destroy()
     ventana.protocol("WM_DELETE_WINDOW", ventana.quit)
-    juego.inicio(categoria)  # Llama a inicio en el módulo del juego pasando la categoría
+    juego.inicio(categoria)
 
 def Menu_Principal():
     global ventana
+    
+    # Verificar que existan todos los assets necesarios
+    assets.verificar_assets()
+    
     ventana = tk.Tk()
     ventana.title("Menú Principal - Juego de la Gallina")
     ventana.geometry("1600x900")
