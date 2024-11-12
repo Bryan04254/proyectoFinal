@@ -2,6 +2,7 @@ import tkinter as tk
 import Modulo_Juego as juego
 import Modulo_Assets as assets
 
+
 def Definir_Categoria():
     global ventana
 
@@ -38,8 +39,8 @@ def Iniciar_Juego(categoria):
 def Menu_Principal():
     global ventana
     
-    # Verificar que existan todos los assets necesarios
-    assets.verificar_assets()
+    assets.inicio # Añade los paréntesis aquí
+
     
     ventana = tk.Tk()
     ventana.title("Menú Principal - Juego de la Gallina")
