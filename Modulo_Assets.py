@@ -1,6 +1,6 @@
 import pygame
 import os
-from PIL import Image  # Esta importación es necesaria para el manejo de imágenes
+from PIL import Image  
 from typing import Dict, Tuple, Optional
 
 class AssetManager:
@@ -12,7 +12,7 @@ class AssetManager:
         self._load_assets()
 
     def scale_image(self, surface: pygame.Surface, new_width: Optional[int] = None, 
-                   new_height: Optional[int] = None, force_aspect_ratio: bool = True) -> pygame.Surface:
+                new_height: Optional[int] = None, force_aspect_ratio: bool = True) -> pygame.Surface:
         """
         Escala una superficie de Pygame a nuevas dimensiones
         """
