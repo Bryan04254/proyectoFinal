@@ -2,16 +2,23 @@ import pygame
 import os
 from PIL import Image  
 from typing import Dict, Tuple, Optional
-
+import sys
 class AssetManager:
-    def __init__(self, categoria: str):
-        self.categoria = categoria
+     def __init__(self, categoria: str):
+        self.categoria = categoria.lower()  # Aseguramos que esté en minúsculas
         self.images: Dict[str, pygame.Surface] = {}
         self.cache: Dict[str, pygame.Surface] = {}
-        self.assets_path = os.path.join("assets", categoria.lower())
+        
+        # Obtener la ruta base del script actual
+        self.base_path = os.path.dirname(os.path.abspath(__file__))
+        self.assets_path = os.path.join(self.base_path, "assets", self.categoria)
+        
+        # Crear estructura de carpetas si no existe
+        self._create_asset_structure()
+        # Cargar los assets
         self._load_assets()
 
-    def scale_image(self, surface: pygame.Surface, new_width: Optional[int] = None, 
+     def scale_image(self, surface: pygame.Surface, new_width: Optional[int] = None, 
                 new_height: Optional[int] = None, force_aspect_ratio: bool = True) -> pygame.Surface:
         """
         Escala una superficie de Pygame a nuevas dimensiones
@@ -49,7 +56,7 @@ class AssetManager:
         new_surface = pygame.image.fromstring(data, size, mode)
         return new_surface
 
-    def _load_assets(self):
+     def _load_assets(self):
         """Carga y escala las imágenes según la categoría"""
         try:
             # Cargar y escalar imagen del jugador (50x50)
@@ -77,7 +84,7 @@ class AssetManager:
             self.images["obstacle"] = self._create_colored_surface((50, 30), (255, 0, 0))
             self.images["background"] = self._create_colored_surface((800, 600), (100, 100, 255))
 
-    def _pil_to_pygame(self, pil_image: Image.Image) -> pygame.Surface:
+     def _pil_to_pygame(self, pil_image: Image.Image) -> pygame.Surface:
         """Convierte una imagen PIL a superficie de Pygame"""
         if pil_image.mode in ('RGBA', 'LA') or (pil_image.mode == 'P' and 'transparency' in pil_image.info):
             pil_image = pil_image.convert('RGBA')
@@ -86,35 +93,45 @@ class AssetManager:
             
         return pygame.image.fromstring(pil_image.tobytes(), pil_image.size, pil_image.mode)
 
-    def _create_colored_surface(self, size: Tuple[int, int], color: Tuple[int, int, int]) -> pygame.Surface:
+     def _create_colored_surface(self, size: Tuple[int, int], color: Tuple[int, int, int]) -> pygame.Surface:
         """Crea una superficie coloreada como respaldo"""
         surface = pygame.Surface(size)
         surface.fill(color)
         return surface
 
-    def _create_asset_structure(self):
+    
+     def _create_asset_structure(self):
         """Crea la estructura de carpetas necesaria para los assets"""
-        if not os.path.exists("assets"):
-            os.makedirs("assets")
+        # Crear directorio principal de assets si no existe
+        assets_dir = os.path.join(self.base_path, "assets")
+        os.makedirs(assets_dir, exist_ok=True)
 
-        categorias = ["ciudad", "granja", "bosque", "espacio", "marte"]
+        # Crear directorios para cada categoría
+        categorias = ["granja", "bosque", "ciudad", "espacio", "marte"]
         for cat in categorias:
-            categoria_path = os.path.join("assets", cat.lower())
-            if not os.path.exists(categoria_path):
-                os.makedirs(categoria_path)
-                self._create_default_images(categoria_path)
-
-    def _create_default_images(self, categoria_path: str):
-        """Crea y escala imágenes por defecto para una categoría"""
+            cat_path = os.path.join(assets_dir, cat)
+            if not os.path.exists(cat_path):
+                os.makedirs(cat_path)
+                print(f"Creando directorio: {cat_path}")
+                self._create_default_images(cat_path)
+     def _create_default_images(self, categoria_path: str):
+        """Crea imágenes por defecto para una categoría"""
+        print(f"Creando imágenes por defecto en: {categoria_path}")
         for name, size, color in [
-            ("player", (450, 450), (0, 255, 0)),
-            ("obstacle", (626, 434), (255, 0, 0)),
-            ("background", (800, 600), (100, 100, 255))
+            ("player", (50, 50), (0, 255, 0)),      # Verde
+            ("obstacle", (50, 30), (255, 0, 0)),    # Rojo
+            ("background", (800, 600), (100, 100, 255))  # Azul claro
         ]:
-            image = Image.new('RGB', size, color)
-            image.save(os.path.join(categoria_path, f"{name}.png"))
+            try:
+                image_path = os.path.join(categoria_path, f"{name}.png")
+                if not os.path.exists(image_path):
+                    image = Image.new('RGB', size, color)
+                    image.save(image_path)
+                    print(f"Creada imagen: {image_path}")
+            except Exception as e:
+                print(f"Error creando imagen {name}: {e}")
 
-    def get_scaled_image(self, image_name: str, scale_factor: float) -> pygame.Surface:
+     def get_scaled_image(self, image_name: str, scale_factor: float) -> pygame.Surface:
         """Obtiene una imagen escalada por un factor"""
         cache_key = f"{image_name}_{scale_factor}"
         if cache_key in self.cache:
@@ -130,9 +147,8 @@ class AssetManager:
         self.cache[cache_key] = scaled
         return scaled
 
-def inicio(categoria=None):
+def inicio(categoria: str = None):
     """Función de inicio para verificar y crear assets"""
     if not pygame.get_init():
         pygame.init()
-    asset_manager = AssetManager(categoria if categoria else "default")
-    return asset_manager
+    return AssetManager(categoria.lower() if categoria else "default")

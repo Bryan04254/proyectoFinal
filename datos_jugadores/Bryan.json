@@ -1,0 +1,32 @@
+{
+    "nombre": "Bryan",
+    "edad": 20,
+    "email": "bchauj9cdj",
+    "fecha_registro": "2024-11-12 04:02:12",
+    "progreso": {
+        "granja": [
+            {
+                "categoria": "granja",
+                "puntos": 30,
+                "nivel": 1,
+                "fecha": "2024-11-12 14:39:29"
+            }
+        ],
+        "ciudad": [
+            {
+                "categoria": "ciudad",
+                "puntos": 120,
+                "nivel": 2,
+                "fecha": "2024-11-12 14:40:09"
+            }
+        ],
+        "bosque": [
+            {
+                "categoria": "bosque",
+                "puntos": 120,
+                "nivel": 2,
+                "fecha": "2024-11-12 14:41:18"
+            }
+        ]
+    }
+}
