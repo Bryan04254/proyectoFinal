@@ -2,7 +2,7 @@ import pygame
 import os
 from PIL import Image  
 from typing import Dict, Tuple, Optional
-import sys
+
 class AssetManager:
      def __init__(self, categoria: str):
         self.categoria = categoria.lower()  # Aseguramos que esté en minúsculas

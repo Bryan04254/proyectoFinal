@@ -10,6 +10,24 @@
                 "puntos": 30,
                 "nivel": 1,
                 "fecha": "2024-11-12 14:39:29"
+            },
+            {
+                "categoria": "granja",
+                "puntos": 1050,
+                "nivel": 11,
+                "fecha": "2024-11-12 14:49:29"
+            },
+            {
+                "categoria": "granja",
+                "puntos": 1290,
+                "nivel": 13,
+                "fecha": "2024-11-12 15:34:23"
+            },
+            {
+                "categoria": "granja",
+                "puntos": 1290,
+                "nivel": 13,
+                "fecha": "2024-11-12 15:46:53"
             }
         ],
         "ciudad": [
@@ -18,6 +36,18 @@
                 "puntos": 120,
                 "nivel": 2,
                 "fecha": "2024-11-12 14:40:09"
+            },
+            {
+                "categoria": "ciudad",
+                "puntos": 830,
+                "nivel": 9,
+                "fecha": "2024-11-12 15:46:38"
+            },
+            {
+                "categoria": "ciudad",
+                "puntos": 1000,
+                "nivel": 11,
+                "fecha": "2024-11-12 15:47:13"
             }
         ],
         "bosque": [
@@ -26,6 +56,22 @@
                 "puntos": 120,
                 "nivel": 2,
                 "fecha": "2024-11-12 14:41:18"
+            }
+        ],
+        "marte": [
+            {
+                "categoria": "marte",
+                "puntos": 240,
+                "nivel": 3,
+                "fecha": "2024-11-12 15:27:08"
+            }
+        ],
+        "espacio": [
+            {
+                "categoria": "espacio",
+                "puntos": 1760,
+                "nivel": 18,
+                "fecha": "2024-11-12 22:59:46"
             }
         ]
     }

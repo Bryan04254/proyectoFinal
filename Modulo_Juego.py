@@ -15,12 +15,15 @@ class GameConfig:
     INITIAL_OBSTACLE_COUNT: int = 3
     MAX_OBSTACLE_COUNT: int = 8
     OBSTACLE_SPAWN_DELAY: int = 30
+    BASE_OBSTACLE_SPEED: int = 5  # Velocidad base de los obstáculos
+    SPEED_INCREMENT: float = 0.5  # Incremento de velocidad por nivel
     
     def __post_init__(self):
         self.OBSTACLE_SPEEDS = {
-            "correct": 5,
+            "correct": self.BASE_OBSTACLE_SPEED,
             "incorrect": 8
         }
+
 
 class JuegoMejorado:
     def __init__(self, categoria: str = "default", nombre_jugador: str = None):
@@ -51,6 +54,9 @@ class JuegoMejorado:
         self.obstacles = []
         self.current_question = None
         
+        # Velocidad actual de los obstáculos
+        self.current_speed = self.config.BASE_OBSTACLE_SPEED
+        
         # Sistema de jugadores
         if nombre_jugador:
             self.gestor_jugadores = GestorJugadores()
@@ -59,6 +65,8 @@ class JuegoMejorado:
                 ultimo_progreso = jugador.progreso[self.categoria][-1]
                 self.score = ultimo_progreso.puntos
                 self.level = ultimo_progreso.nivel
+                # Actualizar la velocidad según el nivel cargado
+                self.update_speed()
         
         # Asegurarse de que existe la estructura de carpetas
         base_path = os.path.dirname(os.path.abspath(__file__))
@@ -90,7 +98,11 @@ class JuegoMejorado:
         except Exception as e:
             print(f"Error al cargar assets: {e}")
             self.running = False
-
+    def update_speed(self):
+        """Actualiza la velocidad de los obstáculos según el nivel actual"""
+        self.current_speed = self.config.BASE_OBSTACLE_SPEED + (self.level - 1) * self.config.SPEED_INCREMENT
+        self.config.OBSTACLE_SPEEDS["correct"] = self.current_speed
+        
     def handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -112,7 +124,7 @@ class JuegoMejorado:
             self.player_pos[1] -= self.config.PLAYER_SPEED
         if keys[pygame.K_DOWN] and self.player_pos[1] < self.config.SCREEN_HEIGHT - 50:
             self.player_pos[1] += self.config.PLAYER_SPEED
-
+    
     def spawn_obstacle(self, random_position=False):
         obstacle_img = self.assets.images.get("obstacle")
         if obstacle_img:
@@ -134,15 +146,15 @@ class JuegoMejorado:
             obstacle_height
         )
         self.obstacles.append(obstacle)
-
     def update_obstacles(self):
         for obstacle in self.obstacles[:]:
-            obstacle.y += self.config.OBSTACLE_SPEEDS["correct"]
+            obstacle.y += self.current_speed  # Usar la velocidad actual
             if obstacle.y > self.config.SCREEN_HEIGHT:
                 self.obstacles.remove(obstacle)
                 self.score += 10
                 if self.score % 100 == 0:
                     self.level += 1
+                    self.update_speed()  # Actualizar la velocidad al subir de nivel
         
         if len(self.obstacles) < self.current_obstacle_count:
             self.spawn_delay_counter += 1
@@ -153,7 +165,7 @@ class JuegoMejorado:
     def check_collisions(self):
         player_rect = pygame.Rect(self.player_pos[0], self.player_pos[1], 50, 50)
         return any(obstacle.colliderect(player_rect) for obstacle in self.obstacles)
-
+    
     def draw(self):
         # Dibujar fondo
         background = self.assets.images.get("background")
@@ -186,12 +198,15 @@ class JuegoMejorado:
         score_text = font.render(f"Puntos: {self.score}", True, (255, 255, 255))
         lives_text = font.render(f"Vidas: {self.lives}", True, (255, 255, 255))
         level_text = font.render(f"Nivel: {self.level}", True, (255, 255, 255))
+        speed_text = font.render(f"Velocidad: {self.current_speed:.1f}", True, (255, 255, 255))
         
         self.screen.blit(score_text, (10, 10))
         self.screen.blit(lives_text, (10, 50))
         self.screen.blit(level_text, (10, 90))
+        self.screen.blit(speed_text, (10, 130))
         
         pygame.display.flip()
+
 
     def guardar_progreso(self):
         if self.nombre_jugador:
