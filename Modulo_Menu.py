@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
-from Jugador import GestorJugadores, Jugador
+from Jugador import GestorJugadores
 import Modulo_Juego as juego
 import Modulo_Assets as assets
 
