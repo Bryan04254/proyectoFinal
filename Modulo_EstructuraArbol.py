@@ -12,19 +12,51 @@ class CategoriaPreguntas:
     preguntas: List[str]
 
 PREGUNTAS_POR_CATEGORIA: Dict[str, List[str]] = {
-    "Granja": [
-        "¿Cuál es el animal que pone huevos?",
-        "¿Qué alimento producen las vacas?",
-        "¿Qué animal nos da lana?",
-        # ... más preguntas de granja
+   "Granja": [
+        Pregunta("¿Qué alimento da la vaca?", "Leche", 1),
+        Pregunta("¿Qué animal pone huevos?", "Gallina", 1),
+        Pregunta("¿Qué animal nos da lana?", "Oveja", 2),
+        Pregunta("¿Qué cultivo es típico de una granja?", "Maíz", 2),
+        Pregunta("¿Qué herramienta usa un granjero para arar?", "Tractor", 3),
+        Pregunta("¿Qué proceso transforma la leche?", "Pasteurización", 4),
+        Pregunta("¿Qué técnica mejora la fertilidad del suelo?", "Rotación de cultivos", 5),
     ],
     "Bosque": [
-        "¿Qué árbol produce bellotas?",
-        "¿Qué animal hiberna en invierno?",
-        "¿Qué hongo es venenoso?",
-        # ... más preguntas de bosque
+        Pregunta("¿Qué árbol produce bellotas?", "Roble", 1),
+        Pregunta("¿Qué animal hiberna en invierno?", "Oso", 1),
+        Pregunta("¿Qué hongo crece en los bosques?", "Champiñón", 2),
+        Pregunta("¿Qué ave habita en bosques?", "Búho", 2),
+        Pregunta("¿Qué proceso natural renuevan los bosques?", "Fotosíntesis", 3),
+        Pregunta("¿Qué tipo de ecosistema es un bosque?", "Terrestre", 4),
+        Pregunta("¿Qué proceso ayuda a la conservación forestal?", "Reforestación", 5),
     ],
-    # ... otras categorías
+    "Ciudad": [
+        Pregunta("¿Qué transporte público común hay?", "Autobús", 1),
+        Pregunta("¿Qué profesional ayuda en emergencias?", "Policía", 1),
+        Pregunta("¿Qué construcción es un servicio público?", "Hospital", 2),
+        Pregunta("¿Qué infraestructura conecta ciudades?", "Carretera", 2),
+        Pregunta("¿Qué sistema organiza el tráfico?", "Semáforos", 3),
+        Pregunta("¿Qué proceso mejora el medio urbano?", "Reciclaje", 4),
+        Pregunta("¿Qué modelo urbano reduce contaminación?", "Ciudad sostenible", 5),
+    ],
+    "Espacio": [
+        Pregunta("¿Qué planeta está más cerca del Sol?", "Mercurio", 1),
+        Pregunta("¿Qué satélite orbita la Tierra?", "Luna", 1),
+        Pregunta("¿Qué estudia el universo?", "Astronomía", 2),
+        Pregunta("¿Qué vehículo explora el espacio?", "Nave espacial", 2),
+        Pregunta("¿Qué fenómeno crea agujeros negros?", "Gravedad extrema", 3),
+        Pregunta("¿Qué permite viajar entre planetas?", "Propulsión", 4),
+        Pregunta("¿Qué teoría explica el origen del universo?", "Big Bang", 5),
+    ],
+    "Marte": [
+        Pregunta("¿De qué color es Marte?", "Rojo", 1),
+        Pregunta("¿Qué planeta está antes de Marte?", "Tierra", 1),
+        Pregunta("¿Qué misión exploró Marte?", "Mars Rover", 2),
+        Pregunta("¿Qué elemento es esencial para vida?", "Agua", 2),
+        Pregunta("¿Qué condición atmosférica tiene Marte?", "Fría", 3),
+        Pregunta("¿Qué desafío tiene explorar Marte?", "Radiación", 4),
+        Pregunta("¿Qué tecnología permitiría colonizar Marte?", "Terraformación", 5),
+    ]
 }
 def generar_arbol_por_categoria(categoria: str) -> NodoArbol:
     """Genera el árbol de preguntas para la categoría dada."""

@@ -1,10 +1,15 @@
 import pygame
 import random
 import os
-from typing import Dict
+from typing import Dict, List, Optional
 from dataclasses import dataclass
 from Modulo_Assets import AssetManager
 from Jugador import GestorJugadores
+from Modulo_creacionDelArbol import construir_arbol_balanceado, Pregunta
+
+
+# Define the order of categories for progression
+CATEGORIA_PROGRESSION = ["granja", "bosque", "ciudad", "espacio", "marte"]
 
 @dataclass
 class GameConfig:
@@ -12,72 +17,157 @@ class GameConfig:
     SCREEN_HEIGHT: int = 600
     FPS: int = 60
     PLAYER_SPEED: int = 5
-    INITIAL_OBSTACLE_COUNT: int = 3
-    MAX_OBSTACLE_COUNT: int = 8
-    OBSTACLE_SPAWN_DELAY: int = 30
-    BASE_OBSTACLE_SPEED: int = 5  # Velocidad base de los obstáculos
-    SPEED_INCREMENT: float = 0.5  # Incremento de velocidad por nivel
+    INITIAL_OBSTACLE_COUNT: int = 5
+    MAX_OBSTACLE_COUNT: int = 10
+    OBSTACLE_SPAWN_DELAY: int = 20
+    BASE_OBSTACLE_SPEED: int = 5
+    SPEED_INCREMENT: float = 0.5
+    POINTS_TO_ADVANCE: int = 500
     
-    def __post_init__(self):
-        self.OBSTACLE_SPEEDS = {
-            "correct": self.BASE_OBSTACLE_SPEED,
-            "incorrect": 8
+class DificultadJuego:
+    MUY_BAJO = 1
+    BAJO = 2
+    NORMAL = 3
+    INTERMEDIO = 4
+    DIFICIL = 5
+
+    @staticmethod
+    def obtener_velocidad_base(dificultad: int) -> float:
+        velocidades = {
+            1: 3.0,  # MUY_BAJO
+            2: 4.0,  # BAJO
+            3: 5.0,  # NORMAL
+            4: 6.0,  # INTERMEDIO
+            5: 7.0   # DIFICIL
         }
+        return velocidades.get(dificultad, 5.0)
+
+class SistemaPreguntas:
+    def __init__(self, categoria: str):
+        self.categoria = categoria
+        self.preguntas_por_categoria = self._inicializar_preguntas()
+        self.arbol = self._construir_arbol_inicial()
+        
+    def _inicializar_preguntas(self) -> Dict[str, List[Dict]]:
+        return {
+            "granja": [
+                {"pregunta": "¿Qué alimento da la vaca?", "opciones": ["Leche", "Carne"], "correcta": "Leche", "dificultad": 1},
+                {"pregunta": "¿Qué animal pone huevos?", "opciones": ["Gallina", "Perro"], "correcta": "Gallina", "dificultad": 2},
+                {"pregunta":"¿Qué animal nos da lana?","opciones":["Oveja", "Cabra"],"correcta":"Oveja","dificultad": 2},
+                {"pregunta":"¿Qué cultivo es típico de una granja?","opciones":["Maiz", "Helado"],"correcta":"Maiz","dificultad": 3},
+                {"pregunta":"¿Qué herramienta usa un granjero para arar?","opciones":["Tractor", "Camion de transporte"],"correcta":"Tractor","dificultad": 4},
+                {"pregunta":"¿Qué técnica mejora la fertilidad del suelo?","opciones":["Tractor", "Rotación de cultivos"],"correcta":"Rotación de cultivos","dificultad": 5},
+            ],
+            "bosque": [
+                {"pregunta": "¿Qué árbol produce bellotas?", "opciones": ["Roble", "Pino"], "correcta": "Roble", "dificultad": 1},
+                {"pregunta": "¿Qué animal hiberna en invierno?", "opciones": ["Oso", "Leopardo"], "correcta": "Oso", "dificultad": 2},
+                {"pregunta": "¿Qué hongo crece en los bosques?", "opciones": ["Champiñón", "ascomicetos"], "correcta": "Champiñón", "dificultad": 3},
+                {"pregunta": "¿Qué proceso natural renuevan los bosques?", "opciones": ["Reforestacion", "Fotosíntesis"], "correcta": "Fotosíntesis", "dificultad": 4},
+                {"pregunta": "¿Qué proceso ayuda a la conservación forestal?", "opciones": ["Reforestación", "Terrestre"], "correcta": "Reforestación", "dificultad": 5},
+            ],
+            # Añadir más categorías
+        }
+
+    def _construir_arbol_inicial(self):
+        preguntas = self.preguntas_por_categoria.get(self.categoria.lower(), [])
+        if not preguntas:
+            return None
+        return construir_arbol_balanceado([Pregunta(p["pregunta"]) for p in preguntas])
+
+    def obtener_preguntas_categoria(self, num_preguntas: int) -> List[Dict]:
+        """Obtiene el número especificado de preguntas para la categoría actual."""
+        preguntas = self.preguntas_por_categoria.get(self.categoria.lower(), [])
+        return random.sample(preguntas, min(len(preguntas), num_preguntas))
+
+    def mostrar_pregunta(self, screen, pregunta_dict: Dict) -> Optional[bool]:
+        """
+        Muestra una pregunta en pantalla y maneja la interacción del usuario.
+        Retorna True si la respuesta es correcta, False si es incorrecta, None si no hay respuesta aún.
+        """
+        # Configuración de la ventana de pregunta
+        pygame.draw.rect(screen, (0, 0, 0), (100, 100, 600, 400))
+        pygame.draw.rect(screen, (255, 255, 255), (110, 110, 580, 380))
+        
+        # Renderizado del texto
+        font = pygame.font.Font(None, 36)
+        pregunta_texto = font.render(pregunta_dict["pregunta"], True, (0, 0, 0))
+        opcion1 = font.render(f"1. {pregunta_dict['opciones'][0]}", True, (0, 0, 0))
+        opcion2 = font.render(f"2. {pregunta_dict['opciones'][1]}", True, (0, 0, 0))
+        
+        # Posicionamiento del texto
+        screen.blit(pregunta_texto, (150, 150))
+        screen.blit(opcion1, (150, 250))
+        screen.blit(opcion2, (150, 300))
+        
+        pygame.display.flip()
+        
+        # Manejo de eventos
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_1:
+                    return pregunta_dict['opciones'][0] == pregunta_dict['correcta']
+                elif event.key == pygame.K_2:
+                    return pregunta_dict['opciones'][1] == pregunta_dict['correcta']
+        
+        return None
 
 
 class JuegoMejorado:
-    def __init__(self, categoria: str = "default", nombre_jugador: str = None):
-        # Asegurarnos de que pygame está inicializado correctamente
+    def __init__(self, categoria: str = "granja", nombre_jugador: str = None):
         if pygame.get_init():
             pygame.quit()
         pygame.init()
+        # Configuración inicial
+        self.config = GameConfig()
+        self.screen = pygame.display.set_mode((self.config.SCREEN_WIDTH, self.config.SCREEN_HEIGHT))
+        self.clock = pygame.time.Clock()
         
-        # Inicializar atributos básicos
+        # Sistema de preguntas
+        self.sistema_preguntas = SistemaPreguntas(categoria)
+        self.nivel_actual = 0
+        self.dificultad = DificultadJuego.MUY_BAJO
+        self.preguntas_respondidas = 0
+        
+        # Game state initialization
         self.running = True
-        self.categoria = categoria.lower()
-        self.nombre_jugador = nombre_jugador
-        
-        # Configuración básica
         self.config = GameConfig()
         self.clock = pygame.time.Clock()
         
-        # Inicializar la pantalla
+        # Screen setup
         self.screen = pygame.display.set_mode((self.config.SCREEN_WIDTH, self.config.SCREEN_HEIGHT))
-        pygame.display.set_caption(f"Juego - {categoria}")
         
-        # Estado del juego
+        # Player and game stats
+        # Resto de la inicialización del juego
+        self.categoria = categoria.lower()
+        self.nombre_jugador = nombre_jugador
         self.score = 0
         self.lives = 3
-        self.level = 1
-        self.current_obstacle_count = self.config.INITIAL_OBSTACLE_COUNT
-        self.spawn_delay_counter = 0
-        self.obstacles = []
-        self.current_question = None
+        self.running = True
         
-        # Velocidad actual de los obstáculos
+        # Determine starting point for category progression
+        self.current_categoria_index = CATEGORIA_PROGRESSION.index(self.categoria)
+        
+        pygame.display.set_caption(f"Dodge Obstacles - {self.categoria}")
+        
+        # Obstacles management
+        self.obstacles = []
+        self.spawn_delay_counter = 0
+        self.current_obstacle_count = self.config.INITIAL_OBSTACLE_COUNT
         self.current_speed = self.config.BASE_OBSTACLE_SPEED
         
-        # Sistema de jugadores
+        # Player management system
         if nombre_jugador:
             self.gestor_jugadores = GestorJugadores()
             jugador = self.gestor_jugadores.obtener_jugador(nombre_jugador)
             if jugador and self.categoria in jugador.progreso:
                 ultimo_progreso = jugador.progreso[self.categoria][-1]
                 self.score = ultimo_progreso.puntos
-                self.level = ultimo_progreso.nivel
-                # Actualizar la velocidad según el nivel cargado
-                self.update_speed()
         
-        # Asegurarse de que existe la estructura de carpetas
-        base_path = os.path.dirname(os.path.abspath(__file__))
-        assets_path = os.path.join(base_path, "assets", self.categoria)
-        os.makedirs(assets_path, exist_ok=True)
-        
-        # Cargar assets
+        # Asset loading
         try:
             self.assets = AssetManager(self.categoria)
             
-            # Posición inicial del jugador
+            # Player initial position
             player_img = self.assets.images.get("player")
             if player_img:
                 player_height = player_img.get_height()
@@ -91,27 +181,48 @@ class JuegoMejorado:
                     self.config.SCREEN_HEIGHT - 100
                 ]
             
-            # Crear obstáculos iniciales
+            # Initial obstacle spawning
             for _ in range(self.current_obstacle_count):
                 self.spawn_obstacle(random_position=True)
                 
         except Exception as e:
-            print(f"Error al cargar assets: {e}")
+            print(f"Error loading assets: {e}")
             self.running = False
-    def update_speed(self):
-        """Actualiza la velocidad de los obstáculos según el nivel actual"""
-        self.current_speed = self.config.BASE_OBSTACLE_SPEED + (self.level - 1) * self.config.SPEED_INCREMENT
-        self.config.OBSTACLE_SPEEDS["correct"] = self.current_speed
+    def manejar_preguntas_inicio_categoria(self) -> bool:
+        """
+        Maneja las preguntas al inicio de cada categoría.
+        Retorna True si se debe continuar con el juego, False si se debe terminar.
+        """
+        num_preguntas = 2 ** self.nivel_actual if self.nivel_actual > 0 else 1
+        preguntas = self.sistema_preguntas.obtener_preguntas_categoria(num_preguntas)
         
+        for pregunta in preguntas:
+            respondido = False
+            while not respondido and self.running:
+                respuesta = self.sistema_preguntas.mostrar_pregunta(self.screen, pregunta)
+                if respuesta is not None:
+                    respondido = True
+                    if respuesta:
+                        self.dificultad = max(DificultadJuego.MUY_BAJO, self.dificultad - 1)
+                    else:
+                        self.dificultad = min(DificultadJuego.DIFICIL, self.dificultad + 1)
+                    
+                    # Actualizar velocidad de los obstáculos basado en la dificultad
+                    self.current_speed = DificultadJuego.obtener_velocidad_base(self.dificultad)
+                
+                # Manejar eventos de cierre de ventana
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        self.running = False
+                        return False
+                
+                self.clock.tick(self.config.FPS)
+                
+        return True
     def handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
-            if event.type == pygame.KEYDOWN and self.current_question:
-                if event.key == pygame.K_t:
-                    self.handle_answer(True)
-                elif event.key == pygame.K_f:
-                    self.handle_answer(False)
         return self.running
 
     def handle_player_movement(self):
@@ -146,16 +257,15 @@ class JuegoMejorado:
             obstacle_height
         )
         self.obstacles.append(obstacle)
+
     def update_obstacles(self):
         for obstacle in self.obstacles[:]:
-            obstacle.y += self.current_speed  # Usar la velocidad actual
+            obstacle.y += self.current_speed
             if obstacle.y > self.config.SCREEN_HEIGHT:
                 self.obstacles.remove(obstacle)
                 self.score += 10
-                if self.score % 100 == 0:
-                    self.level += 1
-                    self.update_speed()  # Actualizar la velocidad al subir de nivel
         
+        # Spawn new obstacles
         if len(self.obstacles) < self.current_obstacle_count:
             self.spawn_delay_counter += 1
             if self.spawn_delay_counter >= self.config.OBSTACLE_SPAWN_DELAY:
@@ -166,8 +276,55 @@ class JuegoMejorado:
         player_rect = pygame.Rect(self.player_pos[0], self.player_pos[1], 50, 50)
         return any(obstacle.colliderect(player_rect) for obstacle in self.obstacles)
     
+    def check_category_progression(self):
+        """
+        Check if player has reached points threshold to advance to next category
+        """
+        if (self.score >= self.config.POINTS_TO_ADVANCE and 
+            self.current_categoria_index < len(CATEGORIA_PROGRESSION) - 1):
+            
+            # Advance to next category
+            self.current_categoria_index += 1
+            new_categoria = CATEGORIA_PROGRESSION[self.current_categoria_index]
+            
+            # Reset score when advancing to a new category
+            self.score = 0
+            
+            # Reset game state for new category
+            self.categoria = new_categoria
+            self.current_speed = self.config.BASE_OBSTACLE_SPEED
+            self.current_obstacle_count = self.config.INITIAL_OBSTACLE_COUNT
+            
+            # Reload assets for new category
+            self.assets = AssetManager(new_categoria)
+            
+            # Update display caption
+            pygame.display.set_caption(f"Dodge Obstacles - {new_categoria}")
+            
+            # Reset player position
+            player_img = self.assets.images.get("player")
+            if player_img:
+                player_height = player_img.get_height()
+                self.player_pos = [
+                    self.config.SCREEN_WIDTH // 2,
+                    self.config.SCREEN_HEIGHT - player_height - 10
+                ]
+            else:
+                self.player_pos = [
+                    self.config.SCREEN_WIDTH // 2,
+                    self.config.SCREEN_HEIGHT - 100
+                ]
+            
+            # Clear existing obstacles and spawn new ones
+            self.obstacles.clear()
+            for _ in range(self.current_obstacle_count):
+                self.spawn_obstacle(random_position=True)
+            
+            return True
+        return False
+
     def draw(self):
-        # Dibujar fondo
+        # Draw background
         background = self.assets.images.get("background")
         if background:
             scaled_background = pygame.transform.scale(background, 
@@ -176,7 +333,7 @@ class JuegoMejorado:
         else:
             self.screen.fill((100, 100, 255))
         
-        # Dibujar obstáculos
+        # Draw obstacles
         obstacle_img = self.assets.images.get("obstacle")
         if obstacle_img:
             for obs in self.obstacles:
@@ -185,7 +342,7 @@ class JuegoMejorado:
             for obs in self.obstacles:
                 pygame.draw.rect(self.screen, (255, 0, 0), obs)
         
-        # Dibujar jugador
+        # Draw player
         player_img = self.assets.images.get("player")
         if player_img:
             self.screen.blit(player_img, self.player_pos)
@@ -197,16 +354,13 @@ class JuegoMejorado:
         font = pygame.font.Font(None, 36)
         score_text = font.render(f"Puntos: {self.score}", True, (255, 255, 255))
         lives_text = font.render(f"Vidas: {self.lives}", True, (255, 255, 255))
-        level_text = font.render(f"Nivel: {self.level}", True, (255, 255, 255))
-        speed_text = font.render(f"Velocidad: {self.current_speed:.1f}", True, (255, 255, 255))
+        category_text = font.render(f"Categoría: {self.categoria}", True, (255, 255, 255))
         
         self.screen.blit(score_text, (10, 10))
         self.screen.blit(lives_text, (10, 50))
-        self.screen.blit(level_text, (10, 90))
-        self.screen.blit(speed_text, (10, 130))
+        self.screen.blit(category_text, (10, 90))
         
         pygame.display.flip()
-
 
     def guardar_progreso(self):
         if self.nombre_jugador:
@@ -215,7 +369,7 @@ class JuegoMejorado:
                     nombre_jugador=self.nombre_jugador,
                     categoria=self.categoria,
                     puntos=self.score,
-                    nivel=self.level
+                    nivel=1
                 )
             except Exception as e:
                 print(f"Error al guardar progreso: {e}")
@@ -227,33 +381,43 @@ class JuegoMejorado:
         pygame.quit()
 
     def run(self):
+        # Iniciar con preguntas de la primera categoría
+        if not self.manejar_preguntas_inicio_categoria():
+            self.cleanup()
+            return
+
         while self.running and self.lives > 0:
             self.handle_events()
+            self.handle_player_movement()
+            self.update_obstacles()
             
-            if not self.current_question:
-                self.handle_player_movement()
-                self.update_obstacles()
-                
-                if self.check_collisions():
-                    self.lives -= 1
-                    if self.lives <= 0:
-                        break
-                    self.player_pos = [
-                        self.config.SCREEN_WIDTH // 2, 
-                        self.config.SCREEN_HEIGHT - 100
-                    ]
+            if self.check_collisions():
+                self.lives -= 1
+                if self.lives <= 0:
+                    break
+                self.player_pos = [self.config.SCREEN_WIDTH // 2, self.config.SCREEN_HEIGHT - 100]
+            
+            # Verificar progresión de categoría
+            if self.check_category_progression():
+                self.nivel_actual += 1
+                if not self.manejar_preguntas_inicio_categoria():
+                    break
             
             self.draw()
             self.clock.tick(self.config.FPS)
         
         self.cleanup()
 
-def inicio(categoria: str = "default", nombre_jugador: str = None):
-    """Función de inicio del juego"""
+def inicio(categoria: str = "granja", nombre_jugador: str = None):
+    """Game initialization function"""
     try:
         juego = JuegoMejorado(categoria, nombre_jugador)
         juego.run()
     except Exception as e:
-        print(f"Error en el juego: {e}")
+        print(f"Game error: {e}")
         if pygame.get_init():
             pygame.quit()
+
+# Main execution
+if __name__ == "__main__":
+    inicio()

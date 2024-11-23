@@ -1,4 +1,3 @@
-# jugador.py
 from dataclasses import dataclass, asdict
 from typing import Dict, List
 import json

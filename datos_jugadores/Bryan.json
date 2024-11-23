@@ -1,77 +1,57 @@
 {
     "nombre": "Bryan",
     "edad": 20,
-    "email": "bchauj9cdj",
-    "fecha_registro": "2024-11-12 04:02:12",
+    "email": "Bryanjkac n",
+    "fecha_registro": "2024-11-22 03:52:56",
     "progreso": {
-        "granja": [
-            {
-                "categoria": "granja",
-                "puntos": 30,
-                "nivel": 1,
-                "fecha": "2024-11-12 14:39:29"
-            },
-            {
-                "categoria": "granja",
-                "puntos": 1050,
-                "nivel": 11,
-                "fecha": "2024-11-12 14:49:29"
-            },
-            {
-                "categoria": "granja",
-                "puntos": 1290,
-                "nivel": 13,
-                "fecha": "2024-11-12 15:34:23"
-            },
-            {
-                "categoria": "granja",
-                "puntos": 1290,
-                "nivel": 13,
-                "fecha": "2024-11-12 15:46:53"
-            }
-        ],
-        "ciudad": [
-            {
-                "categoria": "ciudad",
-                "puntos": 120,
-                "nivel": 2,
-                "fecha": "2024-11-12 14:40:09"
-            },
-            {
-                "categoria": "ciudad",
-                "puntos": 830,
-                "nivel": 9,
-                "fecha": "2024-11-12 15:46:38"
-            },
-            {
-                "categoria": "ciudad",
-                "puntos": 1000,
-                "nivel": 11,
-                "fecha": "2024-11-12 15:47:13"
-            }
-        ],
         "bosque": [
             {
                 "categoria": "bosque",
-                "puntos": 120,
-                "nivel": 2,
-                "fecha": "2024-11-12 14:41:18"
+                "puntos": 250,
+                "nivel": 1,
+                "fecha": "2024-11-22 03:54:55"
+            },
+            {
+                "categoria": "bosque",
+                "puntos": 250,
+                "nivel": 1,
+                "fecha": "2024-11-22 06:52:27"
+            }
+        ],
+        "granja": [
+            {
+                "categoria": "granja",
+                "puntos": 210,
+                "nivel": 1,
+                "fecha": "2024-11-22 04:14:47"
             }
         ],
         "marte": [
             {
                 "categoria": "marte",
-                "puntos": 240,
-                "nivel": 3,
-                "fecha": "2024-11-12 15:27:08"
+                "puntos": 630,
+                "nivel": 1,
+                "fecha": "2024-11-22 06:25:26"
+            },
+            {
+                "categoria": "marte",
+                "puntos": 0,
+                "nivel": 1,
+                "fecha": "2024-11-22 07:24:22"
             }
         ],
-        "espacio": [
+        "ciudad": [
             {
-                "categoria": "espacio",
-                "puntos": 1760,
-                "nivel": 18,
-                "fecha": "2024-11-12 22:59:46"
+                "categoria": "ciudad",
+                "puntos": 50,
+                "nivel": 1,
+                "fecha": "2024-11-22 06:54:53"
+            },
+            {
+                "categoria": "ciudad",
+                "puntos": 0,
+                "nivel": 1,
+                "fecha": "2024-11-22 07:28:02"
             }
         ]
     }
