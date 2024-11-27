@@ -1,6 +1,5 @@
 import pygame
 import random
-import os
 from typing import Dict, List, Optional
 from dataclasses import dataclass
 from Modulo_Assets import AssetManager
@@ -111,8 +110,12 @@ class SistemaPreguntas:
                 {"pregunta":"¿Qué cultivo es típico de una granja?","opciones":["Maiz", "Helado"],"correcta":"Maiz","dificultad": 3},
                 {"pregunta":"¿Qué herramienta usa un granjero para arar?","opciones":["Tractor", "Camion de transporte"],"correcta":"Tractor","dificultad": 4},
                 {"pregunta":"¿Qué técnica mejora la fertilidad del suelo?","opciones":["Tractor", "Rotación de cultivos"],"correcta":"Rotación de cultivos","dificultad": 5},
-            ],
-            "bosque": [
+                {"pregunta": "¿Qué transporte común hay?", "opciones": ["carro", "bus"], "correcta": "carro", "dificultad": 1},
+                {"pregunta": "¿Qué profesional ayuda en emergencias?", "opciones": ["policia", "peaton"], "correcta": "policia", "dificultad": 2},
+                {"pregunta":"¿Qué infraestructura conecta ciudades?","opciones":["carreteras", "edificios"],"correcta":"carreteras","dificultad": 2},
+                {"pregunta":"¿Qué planeta está más cerca del Sol?","opciones":["mercurio", "marte"],"correcta":"marcurio","dificultad": 3},
+                {"pregunta":"¿Qué teoría explica el origen del universo?","opciones":["Big Bang", " inflacionaria"],"correcta":"Big Bang","dificultad": 4},
+                {"pregunta":"¿Qué técnica mejora la fertilidad del suelo?","opciones":["Tractor", "Rotación de cultivos"],"correcta":"Rotación de cultivos","dificultad": 5},
                 {"pregunta": "¿Qué árbol produce bellotas?", "opciones": ["Roble", "Pino"], "correcta": "Roble", "dificultad": 1},
                 {"pregunta": "¿Qué animal hiberna en invierno?", "opciones": ["Oso", "Leopardo"], "correcta": "Oso", "dificultad": 2},
                 {"pregunta": "¿Qué hongo crece en los bosques?", "opciones": ["Champiñón", "ascomicetos"], "correcta": "Champiñón", "dificultad": 3},
