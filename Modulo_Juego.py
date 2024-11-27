@@ -8,11 +8,26 @@ from Jugador import GestorJugadores
 from Modulo_creacionDelArbol import construir_arbol_balanceado, Pregunta
 
 
-# Define the order of categories for progression
+# Definir el orden de progresión de categorías
 CATEGORIA_PROGRESSION = ["granja", "bosque", "ciudad", "espacio", "marte"]
 
 @dataclass
 class GameConfig:
+    """
+    Configuración de parámetros del juego, definiendo pantalla, jugador y configuraciones de juego.
+    
+    Atributos:
+        SCREEN_WIDTH (int): Ancho de la pantalla de juego.
+        SCREEN_HEIGHT (int): Altura de la pantalla de juego.
+        FPS (int): Cuadros por segundo del juego.
+        PLAYER_SPEED (int): Velocidad de movimiento del jugador.
+        INITIAL_OBSTACLE_COUNT (int): Número de obstáculos al inicio del juego.
+        MAX_OBSTACLE_COUNT (int): Número máximo de obstáculos permitidos.
+        OBSTACLE_SPAWN_DELAY (int): Retraso entre apariciones de obstáculos.
+        BASE_OBSTACLE_SPEED (int): Velocidad inicial de los obstáculos.
+        SPEED_INCREMENT (float): Tasa de incremento de velocidad.
+        POINTS_TO_ADVANCE (int): Puntos necesarios para avanzar de categoría.
+    """
     SCREEN_WIDTH: int = 800
     SCREEN_HEIGHT: int = 600
     FPS: int = 60
@@ -25,6 +40,16 @@ class GameConfig:
     POINTS_TO_ADVANCE: int = 500
     
 class DificultadJuego:
+    """
+    Representa niveles de dificultad del juego con configuraciones de velocidad asociadas.
+    
+    Atributos de Clase:
+        MUY_BAJO (int): Nivel de dificultad muy bajo.
+        BAJO (int): Nivel de dificultad bajo.
+        NORMAL (int): Nivel de dificultad normal.
+        INTERMEDIO (int): Nivel de dificultad intermedio.
+        DIFICIL (int): Nivel de dificultad difícil.
+    """
     MUY_BAJO = 1
     BAJO = 2
     NORMAL = 3
@@ -33,6 +58,15 @@ class DificultadJuego:
 
     @staticmethod
     def obtener_velocidad_base(dificultad: int) -> float:
+        """
+        Obtiene la velocidad base para un nivel de dificultad dado.
+        
+        Args:
+            dificultad (int): Nivel de dificultad de 1 a 5.
+        
+        Returns:
+            float: Velocidad base correspondiente al nivel de dificultad.
+        """
         velocidades = {
             1: 3.0,  # MUY_BAJO
             2: 4.0,  # BAJO
@@ -43,12 +77,32 @@ class DificultadJuego:
         return velocidades.get(dificultad, 5.0)
 
 class SistemaPreguntas:
+    """
+    Gestiona el sistema de preguntas para diferentes categorías del juego.
+    
+    Atributos:
+        categoria (str): Categoría actual del juego.
+        preguntas_por_categoria (Dict[str, List[Dict]]): Diccionario de preguntas para cada categoría.
+        arbol (Optional): Árbol de preguntas balanceado para la categoría actual.
+    """
     def __init__(self, categoria: str):
+        """
+        Inicializa el sistema de preguntas para una categoría específica.
+        
+        Args:
+            categoria (str): La categoría del juego para inicializar las preguntas.
+        """
         self.categoria = categoria
         self.preguntas_por_categoria = self._inicializar_preguntas()
         self.arbol = self._construir_arbol_inicial()
         
     def _inicializar_preguntas(self) -> Dict[str, List[Dict]]:
+        """
+        Inicializa y devuelve un diccionario de preguntas por categoría.
+        
+        Returns:
+            Dict[str, List[Dict]]: Diccionario de preguntas organizadas por categoría.
+        """
         return {
             "granja": [
                 {"pregunta": "¿Qué alimento da la vaca?", "opciones": ["Leche", "Carne"], "correcta": "Leche", "dificultad": 1},
@@ -65,24 +119,44 @@ class SistemaPreguntas:
                 {"pregunta": "¿Qué proceso natural renuevan los bosques?", "opciones": ["Reforestacion", "Fotosíntesis"], "correcta": "Fotosíntesis", "dificultad": 4},
                 {"pregunta": "¿Qué proceso ayuda a la conservación forestal?", "opciones": ["Reforestación", "Terrestre"], "correcta": "Reforestación", "dificultad": 5},
             ],
-            # Añadir más categorías
         }
 
     def _construir_arbol_inicial(self):
+        """
+        Construye un árbol balanceado de preguntas para la categoría actual.
+        
+        Returns:
+            Optional: Árbol balanceado de preguntas o None si no hay preguntas.
+        """
         preguntas = self.preguntas_por_categoria.get(self.categoria.lower(), [])
         if not preguntas:
             return None
         return construir_arbol_balanceado([Pregunta(p["pregunta"]) for p in preguntas])
 
     def obtener_preguntas_categoria(self, num_preguntas: int) -> List[Dict]:
-        """Obtiene el número especificado de preguntas para la categoría actual."""
+        """
+        Obtiene un número específico de preguntas para la categoría actual.
+        
+        Args:
+            num_preguntas (int): Número de preguntas a obtener.
+        
+        Returns:
+            List[Dict]: Lista de preguntas seleccionadas aleatoriamente.
+        """
         preguntas = self.preguntas_por_categoria.get(self.categoria.lower(), [])
         return random.sample(preguntas, min(len(preguntas), num_preguntas))
 
     def mostrar_pregunta(self, screen, pregunta_dict: Dict) -> Optional[bool]:
         """
         Muestra una pregunta en pantalla y maneja la interacción del usuario.
-        Retorna True si la respuesta es correcta, False si es incorrecta, None si no hay respuesta aún.
+        
+        Args:
+            screen: Superficie de Pygame donde se mostrará la pregunta.
+            pregunta_dict (Dict): Diccionario con los detalles de la pregunta.
+        
+        Returns:
+            Optional[bool]: True si la respuesta es correcta, False si es incorrecta, 
+                            None si no hay respuesta aún.
         """
         # Configuración de la ventana de pregunta
         pygame.draw.rect(screen, (0, 0, 0), (100, 100, 600, 400))
@@ -111,9 +185,26 @@ class SistemaPreguntas:
         
         return None
 
-
 class JuegoMejorado:
+    """
+    Clase principal que gestiona el estado del juego, interacciones del jugador y mecánicas de juego.
+    
+    Atributos:
+        config (GameConfig): Configuración del juego.
+        sistema_preguntas (SistemaPreguntas): Sistema de gestión de preguntas.
+        categoria (str): Categoría actual del juego.
+        score (int): Puntuación actual del jugador.
+        lives (int): Vidas restantes del jugador.
+        running (bool): Estado de ejecución del juego.
+    """
     def __init__(self, categoria: str = "granja", nombre_jugador: str = None):
+        """
+        Inicializa el juego con una categoría específica y un nombre de jugador opcional.
+        
+        Args:
+            categoria (str, opcional): Categoría inicial del juego. Por defecto "granja".
+            nombre_jugador (str, opcional): Nombre del jugador para seguimiento de progreso. Por defecto None.
+        """
         if pygame.get_init():
             pygame.quit()
         pygame.init()
@@ -128,34 +219,32 @@ class JuegoMejorado:
         self.dificultad = DificultadJuego.MUY_BAJO
         self.preguntas_respondidas = 0
         
-        # Game state initialization
+        # Estado del juego
         self.running = True
-        self.config = GameConfig()
         self.clock = pygame.time.Clock()
         
-        # Screen setup
+        # Configuración de pantalla
         self.screen = pygame.display.set_mode((self.config.SCREEN_WIDTH, self.config.SCREEN_HEIGHT))
         
-        # Player and game stats
-        # Resto de la inicialización del juego
+        # Jugador y estadísticas del juego
         self.categoria = categoria.lower()
         self.nombre_jugador = nombre_jugador
         self.score = 0
         self.lives = 3
         self.running = True
         
-        # Determine starting point for category progression
+        # Determinar punto de inicio para la progresión de categorías
         self.current_categoria_index = CATEGORIA_PROGRESSION.index(self.categoria)
         
         pygame.display.set_caption(f"Dodge Obstacles - {self.categoria}")
         
-        # Obstacles management
+        # Gestión de obstáculos
         self.obstacles = []
         self.spawn_delay_counter = 0
         self.current_obstacle_count = self.config.INITIAL_OBSTACLE_COUNT
         self.current_speed = self.config.BASE_OBSTACLE_SPEED
         
-        # Player management system
+        # Sistema de gestión de jugadores
         if nombre_jugador:
             self.gestor_jugadores = GestorJugadores()
             jugador = self.gestor_jugadores.obtener_jugador(nombre_jugador)
@@ -163,11 +252,11 @@ class JuegoMejorado:
                 ultimo_progreso = jugador.progreso[self.categoria][-1]
                 self.score = ultimo_progreso.puntos
         
-        # Asset loading
+        # Carga de recursos
         try:
             self.assets = AssetManager(self.categoria)
             
-            # Player initial position
+            # Posición inicial del jugador
             player_img = self.assets.images.get("player")
             if player_img:
                 player_height = player_img.get_height()
@@ -181,17 +270,22 @@ class JuegoMejorado:
                     self.config.SCREEN_HEIGHT - 100
                 ]
             
-            # Initial obstacle spawning
+            # Generación inicial de obstáculos
             for _ in range(self.current_obstacle_count):
                 self.spawn_obstacle(random_position=True)
                 
         except Exception as e:
             print(f"Error loading assets: {e}")
             self.running = False
+
     def manejar_preguntas_inicio_categoria(self) -> bool:
         """
-        Maneja las preguntas al inicio de cada categoría.
-        Retorna True si se debe continuar con el juego, False si se debe terminar.
+        Gestiona las preguntas al inicio de cada categoría.
+        
+        Presenta preguntas al jugador y ajusta la dificultad según su desempeño.
+        
+        Returns:
+            bool: True si el juego debe continuar, False si debe terminar.
         """
         num_preguntas = 2 ** self.nivel_actual if self.nivel_actual > 0 else 1
         preguntas = self.sistema_preguntas.obtener_preguntas_categoria(num_preguntas)
@@ -206,7 +300,7 @@ class JuegoMejorado:
                         self.dificultad = max(DificultadJuego.MUY_BAJO, self.dificultad - 1)
                     else:
                         self.dificultad = min(DificultadJuego.DIFICIL, self.dificultad + 1)
-                    
+
                     # Actualizar velocidad de los obstáculos basado en la dificultad
                     self.current_speed = DificultadJuego.obtener_velocidad_base(self.dificultad)
                 

@@ -1,57 +1,29 @@
 {
     "nombre": "Bryan",
     "edad": 20,
-    "email": "Bryanjkac n",
-    "fecha_registro": "2024-11-22 03:52:56",
+    "email": "Bryananm",
+    "fecha_registro": "2024-11-27 07:54:34",
     "progreso": {
-        "bosque": [
-            {
-                "categoria": "bosque",
-                "puntos": 250,
-                "nivel": 1,
-                "fecha": "2024-11-22 03:54:55"
-            },
-            {
-                "categoria": "bosque",
-                "puntos": 250,
-                "nivel": 1,
-                "fecha": "2024-11-22 06:52:27"
-            }
-        ],
         "granja": [
             {
                 "categoria": "granja",
-                "puntos": 210,
+                "puntos": 150,
                 "nivel": 1,
-                "fecha": "2024-11-22 04:14:47"
-            }
-        ],
-        "marte": [
-            {
-                "categoria": "marte",
-                "puntos": 630,
-                "nivel": 1,
-                "fecha": "2024-11-22 06:25:26"
+                "fecha": "2024-11-27 07:54:52"
             },
             {
-                "categoria": "marte",
-                "puntos": 0,
+                "categoria": "granja",
+                "puntos": 150,
                 "nivel": 1,
-                "fecha": "2024-11-22 07:24:22"
+                "fecha": "2024-11-27 08:24:42"
             }
         ],
-        "ciudad": [
+        "bosque": [
             {
-                "categoria": "ciudad",
-                "puntos": 50,
+                "categoria": "bosque",
+                "puntos": 10,
                 "nivel": 1,
-                "fecha": "2024-11-22 06:54:53"
-            },
-            {
-                "categoria": "ciudad",
-                "puntos": 0,
-                "nivel": 1,
-                "fecha": "2024-11-22 07:28:02"
+                "fecha": "2024-11-27 08:01:55"
             }
         ]
     }

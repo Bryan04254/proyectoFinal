@@ -5,7 +5,19 @@ import Modulo_Juego as juego
 import Modulo_Assets as assets
 
 class VentanaRegistro:
+    """
+    Clase que representa la ventana de registro de un nuevo jugador.
+
+    Permite al usuario registrar un nuevo jugador ingresando nombre, edad y correo electrónico.
+    """
     def __init__(self, parent, callback):
+        """
+        Inicializa la ventana de registro.
+
+        Args:
+            parent (tk.Tk): Ventana principal o padre de esta ventana.
+            callback (function): Función para actualizar el jugador actual tras el registro.
+        """
         self.ventana = tk.Toplevel(parent)
         self.ventana.title("Registro de Jugador")
         self.ventana.geometry("400x300")
@@ -14,6 +26,7 @@ class VentanaRegistro:
         self._crear_widgets()
         
     def _crear_widgets(self):
+        """Crea los elementos gráficos (widgets) de la ventana de registro."""
         frame = tk.Frame(self.ventana, padx=20, pady=20)
         frame.pack(expand=True, fill='both')
         
@@ -32,6 +45,7 @@ class VentanaRegistro:
         tk.Button(frame, text="Registrar", command=self._registrar).grid(row=3, column=0, columnspan=2, pady=20)
         
     def _registrar(self):
+        """Maneja el evento de registro de un nuevo jugador."""
         try:
             nombre = self.nombre_entry.get().strip()
             edad = int(self.edad_entry.get().strip())
@@ -51,7 +65,19 @@ class VentanaRegistro:
             messagebox.showerror("Error", f"Error al registrar: {str(e)}")
 
 class VentanaLogin:
+    """
+    Clase que representa la ventana de inicio de sesión para un jugador existente.
+
+    Permite al usuario iniciar sesión ingresando su nombre.
+    """
     def __init__(self, parent, callback):
+        """
+        Inicializa la ventana de inicio de sesión.
+
+        Args:
+            parent (tk.Tk): Ventana principal o padre de esta ventana.
+            callback (function): Función para actualizar el jugador actual tras el inicio de sesión.
+        """
         self.ventana = tk.Toplevel(parent)
         self.ventana.title("Iniciar Sesión")
         self.ventana.geometry("300x150")
@@ -60,6 +86,7 @@ class VentanaLogin:
         self._crear_widgets()
         
     def _crear_widgets(self):
+        """Crea los elementos gráficos (widgets) de la ventana de inicio de sesión."""
         frame = tk.Frame(self.ventana, padx=20, pady=20)
         frame.pack(expand=True, fill='both')
         
@@ -70,6 +97,7 @@ class VentanaLogin:
         tk.Button(frame, text="Iniciar Sesión", command=self._login).grid(row=1, column=0, columnspan=2, pady=20)
         
     def _login(self):
+        """Maneja el evento de inicio de sesión del jugador."""
         nombre = self.nombre_entry.get().strip()
         jugador = self.gestor_jugadores.obtener_jugador(nombre)
         
@@ -80,110 +108,85 @@ class VentanaLogin:
             messagebox.showerror("Error", "Jugador no encontrado")
 
 def Menu_Principal():
+    """
+    Muestra el menú principal del juego.
+
+    Permite al usuario registrarse, iniciar sesión, jugar o salir del programa.
+    """
     global ventana, jugador_actual
     jugador_actual = None
     
     def set_jugador_actual(nombre):
+        """Actualiza el nombre del jugador actual y refresca el menú."""
         global jugador_actual
         jugador_actual = nombre
         actualizar_menu()
     
     def actualizar_menu():
-        # Limpiar la ventana
+        """Refresca el contenido del menú principal según el estado del jugador."""
         for widget in frame_botones.winfo_children():
             widget.destroy()
             
         if jugador_actual:
-            # Mostrar mensaje de bienvenida
-            label_bienvenida = tk.Label(frame_botones, 
-                                    text=f"Bienvenido, {jugador_actual}!", 
-                                    font=("Arial", 14))
-            label_bienvenida.pack(pady=10)
-            
-            # Botón para jugar
-            boton_jugar = tk.Button(frame_botones, text="Jugar", width=50, 
-                                command=lambda: Definir_Categoria())
-            boton_jugar.pack(pady=5)
-            
-            # Botón para cerrar sesión
-            boton_logout = tk.Button(frame_botones, text="Cerrar Sesión", width=50,
-                                command=lambda: set_jugador_actual(None))
-            boton_logout.pack(pady=5)
+            tk.Label(frame_botones, text=f"Bienvenido, {jugador_actual}!", font=("Arial", 14)).pack(pady=10)
+            tk.Button(frame_botones, text="Jugar", width=50, command=lambda: Definir_Categoria()).pack(pady=5)
+            tk.Button(frame_botones, text="Cerrar Sesión", width=50, command=lambda: set_jugador_actual(None)).pack(pady=5)
         else:
-            # Botones cuando no hay sesión iniciada
-            boton_registro = tk.Button(frame_botones, text="Registrarse", width=50,
-                                    command=lambda: VentanaRegistro(ventana, set_jugador_actual))
-            boton_registro.pack(pady=5)
-            
-            boton_login = tk.Button(frame_botones, text="Iniciar Sesión", width=50,
-                                command=lambda: VentanaLogin(ventana, set_jugador_actual))
-            boton_login.pack(pady=5)
+            tk.Button(frame_botones, text="Registrarse", width=50, command=lambda: VentanaRegistro(ventana, set_jugador_actual)).pack(pady=5)
+            tk.Button(frame_botones, text="Iniciar Sesión", width=50, command=lambda: VentanaLogin(ventana, set_jugador_actual)).pack(pady=5)
         
-        # Botón salir siempre visible
-        boton_salir = tk.Button(frame_botones, text="Salir", width=50,
-                            command=ventana.quit)
-        boton_salir.pack(pady=5)
+        tk.Button(frame_botones, text="Salir", width=50, command=ventana.quit).pack(pady=5)
     
-    assets.inicio()  # Agregamos los paréntesis aquí
-    
+    assets.inicio()
     ventana = tk.Tk()
     ventana.title("Menú Principal - Juego de la Gallina")
     ventana.geometry("1600x900")
     
-    # Título
-    label_titulo = tk.Label(ventana, text="---Juego de la Gallina---", font=("Algerian", 60))
-    label_titulo.pack(pady=10)
-    
-    # Frame para botones
+    tk.Label(ventana, text="---Juego de la Gallina---", font=("Algerian", 60)).pack(pady=10)
     frame_botones = tk.Frame(ventana)
     frame_botones.pack(expand=True)
     
-    # Inicializar el menú
     actualizar_menu()
-    
     ventana.protocol("WM_DELETE_WINDOW", ventana.quit)
     ventana.mainloop()
 
 def Definir_Categoria():
-    global ventana, jugador_actual
-
-    # Limpiar la ventana para mostrar la selección de categoría
+    """
+    Permite al usuario elegir una categoría para iniciar el juego.
+    """
+    global ventana
     for widget in ventana.winfo_children():
         widget.destroy()
 
-    # Crear marco para categorías
     marco_categoria = tk.Frame(ventana)
     marco_categoria.pack(expand=True)
 
-    # Crear título y botones de categorías
-    label_titulo = tk.Label(marco_categoria, text="---Elija Una Categoria Inicial---", font=("Algerian", 60))
-    label_titulo.pack(pady=20)
-
+    tk.Label(marco_categoria, text="---Elija Una Categoria Inicial---", font=("Algerian", 60)).pack(pady=20)
     categorias = ["Granja", "Bosque", "Ciudad", "Espacio", "Marte"]
     for cat in categorias:
-        boton = tk.Button(marco_categoria, text=cat, width=50, 
-                        command=lambda c=cat: elegir_y_iniciar(c))
-        boton.pack(pady=10)
+        tk.Button(marco_categoria, text=cat, width=50, command=lambda c=cat: elegir_y_iniciar(c)).pack(pady=10)
 
 def elegir_y_iniciar(valor):
+    """
+    Inicia el juego con la categoría seleccionada.
+
+    Args:
+        valor (str): Categoría seleccionada por el usuario.
+    """
     global categoria, jugador_actual, ventana
     categoria = valor
-    ventana.withdraw()  # Ocultar la ventana principal
-    
-    # Importar el módulo juego aquí para evitar problemas de importación circular
+    ventana.withdraw()
     
     try:
         if jugador_actual:
-            # Si hay un jugador logueado, usar la versión con dos parámetros
             juego.inicio(categoria, jugador_actual)
         else:
-            # Si no hay jugador logueado, usar la versión con un parámetro
             juego.inicio(categoria)
     except Exception as e:
         print(f"Error al iniciar el juego: {e}")
     finally:
-        ventana.deiconify()  # Mostrar la ventana principal de nuevo
-        Menu_Principal()  # Volver al menú principal
+        ventana.deiconify()
+        Menu_Principal()
 
 if __name__ == "__main__":
     Menu_Principal()
